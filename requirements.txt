@@ -1,0 +1,7 @@
+google-cloud-bigquery
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+google-api-python-client
+dbt-adapters==1.1.1
+dbt-bigquery==1.8.1

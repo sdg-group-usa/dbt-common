@@ -1,0 +1,81 @@
+name: Deploy DBT to BigQuery
+
+on:
+  workflow_call:
+    secrets:
+      BQ_KEYFILE_JSON:
+        required: true
+      BQ_PROJECT:
+        required: true
+      BQ_DATASET:
+        required: true
+      BQ_DATASET_PD:
+        required: true
+
+jobs:
+  validate_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Set up variables by branch
+        id: ci
+        env:
+          MERGE_TARGET: ${{ github.event.pull_request.base.ref }}
+        run: ./ci/env_by_branch.sh
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v1.1.1
+        with:
+          credentials_json: ${{ secrets.BQ_KEYFILE_JSON }}
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v0
+        with:
+          project_id: ${{ secrets.BQ_PROJECT }}
+
+      - name: Validate PD BQ-DBT
+        id: validate_pre_deployment
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "DBT changes detected. Proceeding with pre-deployment."
+          python pd_db_manager.py \
+              --project_id=${{ secrets.BQ_PROJECT }} \
+              --dataset_id='${{ secrets.BQ_DATASET_PD }}' \
+              --credentials_json='${{ secrets.BQ_KEYFILE_JSON }}' \
+              --dbt_path='./dbt' \
+              --dbt_target="pd"
+
+      - name: Deploy BQ-DBT
+        id: deployment
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "DBT changes detected. Proceeding with deployment."
+          python pd_db_manager.py \
+              --project_id='${{ secrets.BQ_PROJECT }}' \
+              --dataset_id='${{ secrets.BQ_DATASET }}' \
+              --credentials_json='${{ secrets.BQ_KEYFILE_JSON }}' \
+              --dbt_path='./dbt' \
+              --dbt_target='prod'
+
+      - name: Delete PD BQ Database
+        if: always()
+        run: |
+          python pd_db_manager.py \
+            --project_id=${{ secrets.BQ_PROJECT }} \
+            --dataset_id='${{ secrets.BQ_DATASET_PD }}' \
+            --credentials_json='${{ secrets.BQ_KEYFILE_JSON }}' \
+            --dbt_path=./dbt \
+            --dbt_target="pd_${{ github.event.number }}" \
+            --cleanup
