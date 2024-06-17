@@ -44,17 +44,19 @@ jobs:
         with:
           project_id: ${{ secrets.BQ_PROJECT }}
 
-      - name: Get filepath so we can call scripts 
-        id: filepath
-        uses: endrit-berisha/dbt-common@main
+      - name: Checkout dbt-common repository
+        uses: actions/checkout@v3
+        with:
+          repository: endrit-berisha/dbt-common
+          path: dbt-common
 
       - name: Validate PD BQ-DBT
         id: validate_pre_deployment
         if: github.event_name == 'pull_request'
         run: |
           echo "DBT changes detected. Proceeding with pre-deployment."
-          pip install -r ${{ steps.filepath.outputs.action-path }}/requirements.txt
-          python ${{ steps.filepath.outputs.action-path }}/pd_db_manager.py \
+          pip install -r dbt-common/requirements.txt
+          python dbt-common/pd_db_manager.py \
               --project_id=${{ secrets.BQ_PROJECT }} \
               --dataset_id='${{ secrets.BQ_DATASET_PD }}' \
               --credentials_json='${{ secrets.BQ_KEYFILE_JSON }}' \
@@ -66,8 +68,8 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           echo "DBT changes detected. Proceeding with deployment."
-          pip install -r ${{ steps.filepath.outputs.action-path }}/requirements.txt
-          python ${{ steps.filepath.outputs.action-path }}/pd_db_manager.py \
+          pip install -r dbt-common/requirements.txt
+          python dbt-common/pd_db_manager.py \
               --project_id='${{ secrets.BQ_PROJECT }}' \
               --dataset_id='${{ secrets.BQ_DATASET }}' \
               --credentials_json='${{ secrets.BQ_KEYFILE_JSON }}' \
@@ -77,8 +79,8 @@ jobs:
       - name: Delete PD BQ Database
         if: always()
         run: |
-          pip install -r ${{ steps.filepath.outputs.action-path }}/requirements.txt
-          python ${{ steps.filepath.outputs.action-path }}/pd_db_manager.py \
+          pip install -r dbt-common/requirements.txt
+          python dbt-common/pd_db_manager.py \
             --project_id=${{ secrets.BQ_PROJECT }} \
             --dataset_id='${{ secrets.BQ_DATASET_PD }}_{{ github.event.number }}' \
             --credentials_json='${{ secrets.BQ_KEYFILE_JSON }}' \
