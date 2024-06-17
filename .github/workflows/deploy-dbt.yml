@@ -107,7 +107,7 @@ jobs:
           pip install -r dbt-common/requirements.txt
           python dbt-common/pd_db_manager.py \
             --project_id=${{ secrets.BQ_PROJECT }} \
-            --dataset_id='${{ secrets.BQ_DATASET_PD }}_{{ github.event.number }}' \
+            --dataset_id='${{ secrets.BQ_DATASET_PD }}' \
             --credentials_json='${{ secrets.BQ_KEYFILE_JSON }}' \
             --dbt_path=./dbt \
             --dbt_target="pd" \
