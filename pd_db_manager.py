@@ -12,7 +12,7 @@ def get_bq_client(credentials_json, project_id):
 
 def create_bq_dataset(client, dataset_id):
   dataset = bigquery.Dataset(dataset_id)
-  dataset.location = "US"
+  dataset.location = "us-central1"
   dataset = client.create_dataset(dataset, exists_ok=True)
   logging.info(f"Created dataset {dataset.dataset_id}")
 
