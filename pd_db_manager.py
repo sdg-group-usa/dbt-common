@@ -37,7 +37,7 @@ def main(project_id, dataset_id, credentials_json, dbt_path, dbt_target, cleanup
     delete_bq_dataset(client, full_dataset_id)
     return
   
-  if "pd_" in dataset_id:
+  if "PD_" in dataset_id:
     create_bq_dataset(client, full_dataset_id)
 
   try:
@@ -53,7 +53,7 @@ def main(project_id, dataset_id, credentials_json, dbt_path, dbt_target, cleanup
 
   except Exception as e:
     logging.error(e)
-    if "pd_" in dataset_id:
+    if "PD_" in dataset_id:
       logging.error("Cleaning up PR dataset due to failure.")
       delete_bq_dataset(client, full_dataset_id)
     raise
