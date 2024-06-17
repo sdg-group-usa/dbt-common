@@ -31,7 +31,7 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r endrit-berisha/dbt-common/requirements.txt
 
       - name: Set up variables by branch
         id: ci
@@ -54,7 +54,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           echo "DBT changes detected. Proceeding with pre-deployment."
-          python pd_db_manager.py \
+          python endrit-berisha/dbt-common/pd_db_manager.py \
               --project_id=${{ secrets.BQ_PROJECT }} \
               --dataset_id='${{ secrets.BQ_DATASET_PD }}' \
               --credentials_json='${{ secrets.BQ_KEYFILE_JSON }}' \
@@ -66,7 +66,7 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           echo "DBT changes detected. Proceeding with deployment."
-          python pd_db_manager.py \
+          python endrit-berisha/dbt-common/pd_db_manager.py \
               --project_id='${{ secrets.BQ_PROJECT }}' \
               --dataset_id='${{ secrets.BQ_DATASET }}' \
               --credentials_json='${{ secrets.BQ_KEYFILE_JSON }}' \
@@ -76,7 +76,7 @@ jobs:
       - name: Delete PD BQ Database
         if: always()
         run: |
-          python pd_db_manager.py \
+          python endrit-berisha/dbt-common/pd_db_manager.py \
             --project_id=${{ secrets.BQ_PROJECT }} \
             --dataset_id='${{ secrets.BQ_DATASET_PD }}' \
             --credentials_json='${{ secrets.BQ_KEYFILE_JSON }}' \
