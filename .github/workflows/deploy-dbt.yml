@@ -24,6 +24,10 @@ jobs:
         with:
           python-version: '3.9'
 
+      - name: List files in dbt-common (for debugging)
+        run: |
+          ls -la
+
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
