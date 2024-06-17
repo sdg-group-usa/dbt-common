@@ -16,6 +16,11 @@ jobs:
   validate_deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: List files in dbt-common (for debugging)
+        run: |
+          ls -la
+          echo ${{ github.workspace }}
+    
       - name: Checkout code
         uses: actions/checkout@v3
 
