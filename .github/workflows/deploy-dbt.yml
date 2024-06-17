@@ -59,12 +59,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
 
-      - name: Set up variables by branch
-        id: ci
-        env:
-          MERGE_TARGET: ${{ github.event.pull_request.base.ref }}
-        run: ./ci/env_by_branch.sh
-
       - name: Authenticate to GCP
         uses: google-github-actions/auth@v1.1.1
         with:
