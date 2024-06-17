@@ -24,14 +24,9 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: Get filepath so we can call scripts 
-        id: filepath
-        uses: endrit-berisha/dbt-common@main
-
-      - name: Install Dependencies
+      - name: Install required packages
         run: |
           python -m pip install --upgrade pip
-          pip install -r ${{ steps.filepath.outputs.action-path }}/requirements.txt
 
       - name: Set up variables by branch
         id: ci
@@ -49,11 +44,16 @@ jobs:
         with:
           project_id: ${{ secrets.BQ_PROJECT }}
 
+      - name: Get filepath so we can call scripts 
+        id: filepath
+        uses: endrit-berisha/dbt-common@main
+
       - name: Validate PD BQ-DBT
         id: validate_pre_deployment
         if: github.event_name == 'pull_request'
         run: |
           echo "DBT changes detected. Proceeding with pre-deployment."
+          pip install -r ${{ steps.filepath.outputs.action-path }}/requirements.txt
           python ${{ steps.filepath.outputs.action-path }}/pd_db_manager.py \
               --project_id=${{ secrets.BQ_PROJECT }} \
               --dataset_id='${{ secrets.BQ_DATASET_PD }}' \
@@ -66,6 +66,7 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           echo "DBT changes detected. Proceeding with deployment."
+          pip install -r ${{ steps.filepath.outputs.action-path }}/requirements.txt
           python ${{ steps.filepath.outputs.action-path }}/pd_db_manager.py \
               --project_id='${{ secrets.BQ_PROJECT }}' \
               --dataset_id='${{ secrets.BQ_DATASET }}' \
@@ -76,6 +77,7 @@ jobs:
       - name: Delete PD BQ Database
         if: always()
         run: |
+          pip install -r ${{ steps.filepath.outputs.action-path }}/requirements.txt
           python ${{ steps.filepath.outputs.action-path }}/pd_db_manager.py \
             --project_id=${{ secrets.BQ_PROJECT }} \
             --dataset_id='${{ secrets.BQ_DATASET_PD }}_{{ github.event.number }}' \
