@@ -15,12 +15,7 @@ on:
 jobs:
   validate_deploy:
     runs-on: ubuntu-latest
-    steps:
-      - name: List files in dbt-common (for debugging)
-        run: |
-          ls -la
-          echo ${{ github.workspace }}
-    
+    steps:    
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -29,15 +24,14 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: List files in dbt-common (for debugging)
-        run: |
-          ls -la
-          echo ${{ github.workspace }}
+      - name: Get filepath so we can call scripts 
+        id: filepath
+        uses: endrit-berisha/dbt-common@main
 
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r ${{ github.workspace }}/requirements.txt
+          pip install -r ${{ steps.filepath.outputs.action-path }}/requirements.txt
 
       - name: Set up variables by branch
         id: ci
@@ -60,7 +54,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           echo "DBT changes detected. Proceeding with pre-deployment."
-          python ${{ github.workspace }}/pd_db_manager.py \
+          python ${{ steps.filepath.outputs.action-path }}/pd_db_manager.py \
               --project_id=${{ secrets.BQ_PROJECT }} \
               --dataset_id='${{ secrets.BQ_DATASET_PD }}' \
               --credentials_json='${{ secrets.BQ_KEYFILE_JSON }}' \
@@ -72,7 +66,7 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           echo "DBT changes detected. Proceeding with deployment."
-          python ${{ github.workspace }}/pd_db_manager.py \
+          python ${{ steps.filepath.outputs.action-path }}/pd_db_manager.py \
               --project_id='${{ secrets.BQ_PROJECT }}' \
               --dataset_id='${{ secrets.BQ_DATASET }}' \
               --credentials_json='${{ secrets.BQ_KEYFILE_JSON }}' \
@@ -82,7 +76,7 @@ jobs:
       - name: Delete PD BQ Database
         if: always()
         run: |
-          python ${{ github.workspace }}/pd_db_manager.py \
+          python ${{ steps.filepath.outputs.action-path }}/pd_db_manager.py \
             --project_id=${{ secrets.BQ_PROJECT }} \
             --dataset_id='${{ secrets.BQ_DATASET_PD }}_{{ github.event.number }}' \
             --credentials_json='${{ secrets.BQ_KEYFILE_JSON }}' \
