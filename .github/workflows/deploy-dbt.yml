@@ -11,6 +11,37 @@ on:
         required: true
       BQ_DATASET_PD:
         required: true
+      BQ_PRIVATE_KEY:
+        required: true
+      BQ_PRIVATE_KEY_ID: 
+        required: true
+      BQ_CLIENT_EMAIL: 
+        required: true
+      BQ_CLIENT_ID: 
+        required: true
+      BQ_AUTH_URI: 
+        required: true
+      BQ_TOKEN_URI: 
+        required: true
+      BQ_AUTH_PROVIDER_X509_CERT_URL: 
+        required: true
+      BQ_CLIENT_X509_CERT_URI: 
+        required: true
+
+env:
+  BQ_PROJECT: ${{ secrets.BQ_PROJECT }}
+  BQ_DATASET: ${{ secrets.BQ_DATASET }}
+  BQ_DATASET_PD: ${{ secrets.BQ_DATASET_PD }}
+  BQ_KEYFILE_JSON: ${{ secrets.BQ_KEYFILE_JSON }}
+  BQ_LOCATION: ${{ secrets.BQ_LOCATION }}
+  BQ_PRIVATE_KEY: ${{ secrets.BQ_PRIVATE_KEY }}
+  BQ_PRIVATE_KEY_ID: ${{ secrets.BQ_PRIVATE_KEY_ID }}
+  BQ_CLIENT_EMAIL: ${{ secrets.BQ_CLIENT_EMAIL }}
+  BQ_CLIENT_ID: ${{ secrets.BQ_CLIENT_ID }}
+  BQ_AUTH_URI: ${{ secrets.BQ_AUTH_URI }}
+  BQ_TOKEN_URI: ${{ secrets.BQ_TOKEN_URI }}
+  BQ_AUTH_PROVIDER_X509_CERT_URL: ${{ secrets.BQ_AUTH_PROVIDER_X509_CERT_URL }}
+  BQ_CLIENT_X509_CERT_URI: ${{ secrets.BQ_CLIENT_X509_CERT_URI }}
 
 jobs:
   validate_deploy:
