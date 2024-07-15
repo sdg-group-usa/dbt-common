@@ -115,6 +115,7 @@ jobs:
       
       - name: Docker Build and Push
         if: github.event_name != 'pull_request'
+        working-directory: ./dbt
         run: |
           docker build . --tag dbt-edw-image:dev
           docker tag dbt-edw-image:${IMAGE_TAG} $GAR_LOCATION/dbt-edw-image:dev
