@@ -38,6 +38,7 @@ def main(project_id, dataset_id, credentials_json, dbt_path, dbt_target, cleanup
     return
   
   if "PD_" in dataset_id:
+    print(full_dataset_id)
     create_bq_dataset(client, full_dataset_id)
 
   try:
