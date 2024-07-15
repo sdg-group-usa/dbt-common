@@ -19,6 +19,7 @@ env:
   BQ_DATASET_DEV: ${{ secrets.BQ_DATASET_DEV }}
   BQ_DATASET_PD: ${{ secrets.BQ_DATASET_PD }}
   KEYFILE_CONTENTS: ${{ secrets.BQ_KEYFILE_JSON }}
+  BQ_KEYFILE: /tmp/google/google-service-account.json
   BQ_LOCATION: ${{ secrets.BQ_LOCATION }}
 
 jobs:
@@ -53,9 +54,10 @@ jobs:
           repository: endrit-berisha/dbt-common
           path: dbt-common
 
-      # Prep Google keyfile
-      - run: mkdir -p "$(dirname $BQ_KEYFILE)" 
-      - run: echo "$KEYFILE_CONTENTS" > $BQ_KEYFILE
+      - name: Prep Google Keyfile
+        run: | 
+          mkdir -p "$(dirname $BQ_KEYFILE)" 
+          echo "$KEYFILE_CONTENTS" > $BQ_KEYFILE
 
       - name: Validate PD BQ-DBT
         id: validate_pre_deployment
