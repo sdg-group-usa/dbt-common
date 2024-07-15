@@ -118,5 +118,5 @@ jobs:
         working-directory: ./dbt
         run: |
           docker build . --tag dbt-edw-image:dev
-          docker tag dbt-edw-image:${IMAGE_TAG} $GAR_LOCATION/dbt-edw-image:dev
+          docker tag dbt-edw-image:dev $GAR_LOCATION/dbt-edw-image:dev
           docker push $GAR_LOCATION/dbt-edw-image:dev
