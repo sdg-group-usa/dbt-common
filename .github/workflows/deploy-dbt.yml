@@ -75,18 +75,18 @@ jobs:
               --dbt_path='./dbt' \
               --dbt_target="pd"
 
-      # - name: Deploy BQ-DBT
-      #   id: deployment
-      #   if: github.event_name != 'pull_request'
-      #   run: |
-      #     echo "DBT changes detected. Proceeding with deployment."
-      #     pip install -r dbt-common/requirements.txt
-      #     python dbt-common/pd_db_manager.py \
-      #         --project_id='${{ secrets.BQ_PROJECT_DEV }}' \
-      #         --dataset_id='${{ secrets.BQ_DATASET_DEV }}' \
-      #         --credentials_json='${{ secrets.BQ_KEYFILE_JSON }}' \
-      #         --dbt_path='./dbt' \
-      #         --dbt_target='dev'
+      - name: Deploy BQ-DBT
+        id: deployment
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "DBT changes detected. Proceeding with deployment."
+          pip install -r dbt-common/requirements.txt
+          python dbt-common/pd_db_manager.py \
+              --project_id='${{ secrets.BQ_PROJECT_DEV }}' \
+              --dataset_id='${{ secrets.BQ_DATASET_DEV }}' \
+              --credentials_json='${{ secrets.BQ_KEYFILE_JSON }}' \
+              --dbt_path='./dbt' \
+              --dbt_target='dev'
 
       - name: Delete PD BQ Database
         if: always()
@@ -117,6 +117,6 @@ jobs:
         if: github.event_name != 'pull_request'
         working-directory: ./dbt
         run: |
-          docker build . --tag dbt-edw-image:dev
-          docker tag dbt-edw-image:dev $GAR_LOCATION/dbt-edw-image:dev
-          docker push $GAR_LOCATION/dbt-edw-image:dev
+          docker build . --tag dbt-edw-image:$BRANCH_NAME
+          docker tag dbt-edw-image:$BRANCH_NAME $GAR_LOCATION/dbt-edw-image:$BRANCH_NAME
+          docker push $GAR_LOCATION/dbt-edw-image:$BRANCH_NAME
