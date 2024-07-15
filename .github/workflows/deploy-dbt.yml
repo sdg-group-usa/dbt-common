@@ -13,6 +13,8 @@ on:
         required: true
       BQ_LOCATION:
         required: true
+      GAR_LOCATION:
+        required: true
 
 env:
   BQ_PROJECT_DEV: ${{ secrets.BQ_PROJECT_DEV }}
@@ -21,6 +23,7 @@ env:
   KEYFILE_CONTENTS: ${{ secrets.BQ_KEYFILE_JSON }}
   BQ_KEYFILE: /tmp/google/google-service-account.json
   BQ_LOCATION: ${{ secrets.BQ_LOCATION }}
+  GAR_LOCATION: ${{ secrets.GAR_LOCATION }}
 
 jobs:
   validate_deploy:
@@ -96,3 +99,23 @@ jobs:
             --dbt_path=./dbt \
             --dbt_target="pd" \
             --cleanup
+
+      - name: "Set branch name"
+        run: echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v1"
+
+      - name: "Use gcloud CLI"
+        run: "gcloud info"
+
+      - name: "Docker auth"
+        run: |
+          gcloud auth configure-docker ${{ secrets.BQ_LOCATION }}-docker.pkg.dev --quiet
+      
+      - name: Docker Build and Push
+        if: github.event_name != 'pull_request'
+        run: |
+          docker build . --tag dbt-edw-image:${BRANCH_NAME}
+          docker tag dbt-edw-image:${IMAGE_TAG} $GAR_LOCATION/dbt-edw-image:${BRANCH_NAME}
+          docker push $GAR_LOCATION/dbt-edw-image:${BRANCH_NAME}
