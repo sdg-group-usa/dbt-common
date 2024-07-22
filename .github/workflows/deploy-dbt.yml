@@ -15,6 +15,8 @@ on:
         required: true
       GAR_LOCATION:
         required: true
+      GAR_IMAGE_NAME:
+        required: true
 
 env:
   BQ_PROJECT_DEV: ${{ secrets.BQ_PROJECT_DEV }}
@@ -24,6 +26,7 @@ env:
   BQ_KEYFILE: /tmp/google/google-service-account.json
   BQ_LOCATION: ${{ secrets.BQ_LOCATION }}
   GAR_LOCATION: ${{ secrets.GAR_LOCATION }}
+  GAR_IMAGE_NAME: ${{ secrets.GAR_IMAGE_NAME }}
 
 jobs:
   validate_deploy:
@@ -117,6 +120,6 @@ jobs:
         if: github.event_name != 'pull_request'
         working-directory: ./dbt
         run: |
-          docker build . --tag dbt-edw-image:$BRANCH_NAME
-          docker tag dbt-edw-image:$BRANCH_NAME $GAR_LOCATION/dbt-edw-image:$BRANCH_NAME
-          docker push $GAR_LOCATION/dbt-edw-image:$BRANCH_NAME
+          docker build . --tag $GAR_IMAGE_NAME:$BRANCH_NAME
+          docker tag $GAR_IMAGE_NAME:$BRANCH_NAME $GAR_LOCATION/$GAR_IMAGE_NAME:$BRANCH_NAME
+          docker push $GAR_LOCATION/$GAR_IMAGE_NAME:$BRANCH_NAME
